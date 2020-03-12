@@ -23,13 +23,23 @@ namespace BackendClient
                 .SetBasePath(Directory.GetCurrentDirectory() + "\\config")
                 .AddJsonFile("clientHosting.json", optional: true, reloadOnChange: true)
                 .Build();
+
             return Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder
-                    .UseStartup<Startup>()
-                    .UseUrls(config["urls"])
-                    .UseContentRoot(Directory.GetCurrentDirectory() + "\\bin\\client");
+                    if (Directory.Exists(Directory.GetCurrentDirectory() + "\\bin\\client"))
+                    {
+                        webBuilder
+                        .UseStartup<Startup>()
+                        .UseUrls(config["urls"])
+                        .UseContentRoot(Directory.GetCurrentDirectory() + "\\bin\\client");
+                    }
+                    else
+                    {
+                        webBuilder
+                        .UseStartup<Startup>()
+                        .UseUrls(config["urls"]);
+                    }
                 });
         }
     }

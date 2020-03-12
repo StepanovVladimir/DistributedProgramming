@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
+using StackExchange.Redis;
 
 namespace BackendApi.Services
 {
     public class JobService : Job.JobBase
     {
-        private readonly static Dictionary<string, string> _jobs = new Dictionary<string, string>();
+        //private readonly static Dictionary<string, string> _jobs = new Dictionary<string, string>();
+        private readonly static IDatabase _db = ConnectionMultiplexer.Connect("localhost").GetDatabase();
         private readonly ILogger<JobService> _logger;
 
         public JobService(ILogger<JobService> logger)
@@ -23,7 +25,10 @@ namespace BackendApi.Services
             {
                 Id = id
             };
-            _jobs[id] = request.Description;
+
+            //_jobs[id] = request.Description;
+            _db.StringSet(id, request.Description);
+
             return Task.FromResult(resp);
         }
     }
