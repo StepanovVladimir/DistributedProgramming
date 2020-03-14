@@ -11,12 +11,8 @@ namespace BackendApi.Services
     public class JobService : Job.JobBase
     {
         private readonly static IDatabase _db = ConnectionMultiplexer.Connect("localhost").GetDatabase();
-        private readonly ILogger<JobService> _logger;
-
-        public JobService(ILogger<JobService> logger)
-        {
-            _logger = logger;
-        }
+        private readonly static GreeterService _greeterService = new GreeterService();
+        private readonly static IConnection _connection = new ConnectionFactory().CreateConnection("nats://127.0.0.1");
 
         public override Task<RegisterResponse> Register(RegisterRequest request, ServerCallContext context)
         {
@@ -24,17 +20,13 @@ namespace BackendApi.Services
 
             _db.StringSet(id, request.Description);
 
-            string natsConnectionString = "nats://127.0.0.1";
-            var greeterService = new GreeterService();
-            using (IConnection connection = new ConnectionFactory().CreateConnection(natsConnectionString))
-            {
-                greeterService.Run(connection, id);
-            }
+            _greeterService.Run(_connection, id);
 
             var resp = new RegisterResponse
             {
                 Id = id
             };
+
             return Task.FromResult(resp);
         }
     }
