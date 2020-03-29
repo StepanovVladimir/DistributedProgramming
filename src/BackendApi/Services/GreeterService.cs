@@ -12,7 +12,7 @@ namespace BackendApi.Services
         public void Run(IConnection connection, string id)
         {
             byte[] payload = Encoding.Default.GetBytes(id);
-            connection.Publish("greeter", payload);
+            connection.Publish("JobCreated", payload);
         }
     }
 }

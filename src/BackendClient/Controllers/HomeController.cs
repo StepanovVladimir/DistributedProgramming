@@ -35,13 +35,18 @@ namespace BackendClient.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RegisterJob([Bind("Description")] RegisterRequest request)
+        public async Task<IActionResult> RegisterJob([Bind("Description,Data")] RegisterRequest request)
         {
             using var channel = GrpcChannel.ForAddress("http://localhost:" + _configuration["port"]);
             var client = new Job.JobClient(channel);
             var reply = await client.RegisterAsync(request);
 
-            return View("JobId", reply);
+            return RedirectToAction("JobId", reply);
+        }
+
+        public IActionResult JobId(RegisterResponse reply)
+        {
+            return View(reply);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

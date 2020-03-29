@@ -15,13 +15,13 @@ namespace Logger
 
         public void Run(IConnection connection)
         {
-            var greetings = connection.Observe("greeter")
+            var greetings = connection.Observe("JobCreated")
                     .Where(m => m.Data?.Any() == true)
                     .Select(m => Encoding.Default.GetString(m.Data));
 
             greetings.Subscribe(msg =>
             {
-                string description = _db.StringGet(msg);
+                string description = _db.HashGet(msg, "description");
                 Console.WriteLine($"id: {msg}; description: {description}");
             });
         }

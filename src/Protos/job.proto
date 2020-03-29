@@ -13,6 +13,7 @@ service Job {
 // The request message containing the user's name.
 message RegisterRequest {
   string description = 1;
+  string data = 2;
 }
 
 // The response message containing the greetings.

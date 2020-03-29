@@ -18,7 +18,8 @@ namespace BackendApi.Services
         {
             string id = Guid.NewGuid().ToString();
 
-            _db.StringSet(id, request.Description);
+            _db.HashSet(id, "description", request.Description);
+            _db.HashSet(id, "data", request.Data);
 
             _greeterService.Run(_connection, id);
 
