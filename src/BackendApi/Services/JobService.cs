@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
@@ -29,6 +30,29 @@ namespace BackendApi.Services
             };
 
             return Task.FromResult(resp);
+        }
+
+        public override Task<ProcessingResult> GetProcessingResult(RegisterResponse jobId, ServerCallContext context)
+        {
+            var result = new ProcessingResult
+            {
+                ProcessingComplete = false,
+                TextRank = ""
+            };
+
+            for (int i = 0; i < 8; ++i)
+            {
+                Thread.Sleep(2000);
+                string textRank = _db.HashGet(jobId.Id, "text_rank");
+                if (textRank != null)
+                {
+                    result.ProcessingComplete = true;
+                    result.TextRank = textRank;
+                    break;
+                }
+            }
+
+            return Task.FromResult(result);
         }
     }
 }

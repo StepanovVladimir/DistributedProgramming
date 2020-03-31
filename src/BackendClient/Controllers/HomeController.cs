@@ -17,15 +17,16 @@ namespace BackendClient.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IConfiguration _configuration;
+        private readonly GrpcChannel _channel;
 
         public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
-            _configuration = new ConfigurationBuilder()
+            IConfiguration configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory() + "/config")
                 .AddJsonFile("apiHosting.json", optional: true, reloadOnChange: true)
                 .Build();
+            _channel = GrpcChannel.ForAddress("http://localhost:" + configuration["port"]);
         }
 
         public IActionResult Index()
@@ -37,15 +38,17 @@ namespace BackendClient.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegisterJob([Bind("Description,Data")] RegisterRequest request)
         {
-            using var channel = GrpcChannel.ForAddress("http://localhost:" + _configuration["port"]);
-            var client = new Job.JobClient(channel);
+            var client = new Job.JobClient(_channel);
             var reply = await client.RegisterAsync(request);
 
-            return RedirectToAction("JobId", reply);
+            return RedirectToAction("TextDetails", reply);
         }
 
-        public IActionResult JobId(RegisterResponse reply)
+        public IActionResult TextDetails(RegisterResponse jobId)
         {
+            var client = new Job.JobClient(_channel);
+            var reply = client.GetProcessingResult(jobId);
+
             return View(reply);
         }
 

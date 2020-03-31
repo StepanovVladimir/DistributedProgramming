@@ -8,6 +8,7 @@ package job;
 service Job {
   // Register job
   rpc Register (RegisterRequest) returns (RegisterResponse);
+  rpc GetProcessingResult (RegisterResponse) returns (ProcessingResult);
 }
 
 // The request message containing the user's name.
@@ -19,4 +20,9 @@ message RegisterRequest {
 // The response message containing the greetings.
 message RegisterResponse {
   string id = 1;
+}
+
+message ProcessingResult {
+  bool processingComplete = 1;
+  string textRank = 2;
 }
